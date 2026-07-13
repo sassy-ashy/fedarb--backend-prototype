@@ -1,0 +1,12 @@
+# Files here are NOT uploaded/served as part of the site.
+# (Cloudflare Workers static assets — gitignore-style patterns.)
+# Only index.html should be publicly served.
+**/.git
+**/.git/**
+**/.gitignore
+**/.assetsignore
+**/.wrangler
+**/wrangler.jsonc
+**/node_modules
+**/.DS_Store
+CLAUDE.md
