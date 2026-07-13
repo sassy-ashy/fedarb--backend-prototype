@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>My Fedarb — Prototype</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/dist/tabler-icons.min.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d1b2e; --bg-sidebar:#091323; --bg-card:#122239; --bg-card2:#0f1e33; --bg-hover:#182a44;
+    --border:#24354d; --text:#e8e6de; --text-heading:#f2f0e8; --text-muted:#8fa1bd; --text-dim:#63737f;
+    --gold:#d4af37; --gold-bg:#3a2e05; --gold-text:#e0b94a; --gold-ink:#3a2e05;
+    --blue:#7fa8d9; --teal:#6fc2d8; --teal-bg:#0c2a3a;
+    --green:#6fae7c; --green-bg:#1c3320; --orange:#e08a6f; --orange-bg:#3a1c14;
+    --purple:#b09ee0; --purple-bg:#241b3a; --gray:#b4b2a9; --gray-bg:#2a2a2a; --red:#c9564f;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0; padding:0; height:100%; background:var(--bg); font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; color:var(--text);}
+  a{text-decoration:none; color:inherit; cursor:pointer;}
+  .app{display:flex; height:100vh; overflow:hidden;}
+
+  /* Sidebar */
+  .sidebar{width:172px; flex-shrink:0; background:var(--bg-sidebar); padding:18px 12px; display:flex; flex-direction:column; gap:3px; border-right:0.5px solid var(--border);}
+  .brand{display:flex; align-items:center; gap:8px; margin-bottom:20px; padding:0 4px;}
+  .brand .logo{width:26px; height:26px; border-radius:6px; background:var(--gold); display:flex; align-items:center; justify-content:center; color:var(--gold-ink); font-weight:600; font-size:13px; flex-shrink:0;}
+  .brand span{font-size:13.5px; font-weight:600; color:var(--text-heading);}
+  .nav-item{display:flex; align-items:center; gap:9px; padding:9px 10px; border-radius:7px; color:var(--text-muted); font-size:12.5px; transition:background .12s, color .12s;}
+  .nav-item i{font-size:16px; width:16px; text-align:center;}
+  .nav-item:hover{background:var(--bg-card); color:var(--text-heading);}
+  .nav-item.active{background:var(--bg-hover); color:var(--gold); font-weight:500;}
+  .nav-divider{height:1px; background:var(--border); margin:8px 4px;}
+  .nav-bottom{margin-top:auto;}
+
+  /* Content */
+  .content{flex:1; overflow-y:auto; padding:20px 24px; position:relative;}
+  .view{display:none;}
+  .view.active{display:block; animation:fadein .15s ease;}
+  @keyframes fadein{from{opacity:0;} to{opacity:1;}}
+
+  .page-header{display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; gap:12px; flex-wrap:wrap;}
+  .page-header h1{font-size:17px; font-weight:600; margin:0; color:var(--text-heading);}
+  .page-header .subtitle{font-size:11.5px; color:var(--text-muted); margin:3px 0 0;}
+  .header-icons{display:flex; align-items:center; gap:16px; flex-shrink:0;}
+  .header-icons i{font-size:16px; color:var(--text-muted); cursor:pointer;}
+  .avatar{width:27px; height:27px; border-radius:50%; background:var(--bg-hover); display:flex; align-items:center; justify-content:center; font-size:11px; color:var(--gold); border:1px solid var(--gold);}
+
+  .btn{display:inline-flex; align-items:center; justify-content:center; gap:5px; padding:7px 14px; border-radius:6px; font-size:11px; font-weight:500; cursor:pointer; border:0.5px solid transparent; white-space:nowrap; transition:filter .1s;}
+  .btn:hover{filter:brightness(1.12);}
+  .btn-gold{background:var(--gold); color:var(--gold-ink);}
+  .btn-outline{border-color:#3a4d6b; color:#c7cedb; background:transparent;}
+  .btn-outline-gold{border-color:var(--gold); color:var(--gold); background:transparent;}
+  .btn-red{background:var(--red); color:#3a0d0a;}
+  .btn-block{flex:1; padding:9px; font-size:11.5px;}
+
+  .toolbar{display:flex; align-items:center; gap:10px; flex-shrink:0;}
+  .search-box{display:flex; align-items:center; gap:6px; background:var(--bg-card); border-radius:6px; padding:6px 10px;}
+  .search-box i{color:var(--text-muted); font-size:13px;}
+  .search-box span{font-size:11px; color:var(--text-muted);}
+  .icon-btn{font-size:15px; color:var(--text-muted); cursor:pointer;}
+
+  /* Cards / panels */
+  .panel{background:var(--bg-card); border-radius:10px; padding:14px 16px;}
+  .panel-title{font-size:12px; font-weight:500; color:var(--gold); margin:0 0 8px; letter-spacing:.3px;}
+
+  /* Table (cases / invoices / payments) */
+  .table-wrap{overflow-x:auto; border:0.5px solid var(--border); border-radius:8px;}
+  table{width:100%; border-collapse:collapse; font-size:11px;}
+  thead tr{background:var(--bg-sidebar);}
+  th{padding:8px 8px; text-align:left; color:var(--text-muted); font-weight:500; white-space:nowrap; cursor:default;}
+  td{padding:8px 8px; vertical-align:top;}
+  tbody tr{border-top:0.5px solid var(--border);}
+  tbody tr.row-alt{background:var(--bg-card2);}
+  tbody tr.row-main{background:var(--bg-card);}
+  tbody tr.clickable:hover{filter:brightness(1.15); cursor:pointer;}
+  .group-row td{padding:6px 8px; font-size:9.5px; color:var(--gold); letter-spacing:.3px; background:var(--bg-card);}
+
+  .pill{display:inline-block; padding:2px 8px; border-radius:20px; font-size:10px; white-space:nowrap;}
+  .pill-arbitration{background:var(--gold-bg); color:var(--gold-text);}
+  .pill-mediation{background:var(--teal-bg); color:var(--teal);}
+  .pill-mock{background:var(--purple-bg); color:var(--purple);}
+  .pill-neutral{background:var(--gray-bg); color:var(--gray);}
+  .pill-orange{background:var(--orange-bg); color:var(--orange);}
+  .pill-green{background:var(--green-bg); color:var(--green);}
+  .pill-teal{background:var(--teal-bg); color:var(--teal);}
+
+  .chip{padding:5px 11px; border-radius:20px; font-size:10.5px; white-space:nowrap; cursor:pointer; background:var(--gray-bg); color:var(--gray); border:1px solid transparent;}
+  .chip.active{background:var(--bg-hover); color:var(--gold); border-color:var(--gold); font-weight:500;}
+  .chip-row{display:flex; gap:6px; flex-wrap:wrap;}
+
+  /* Forms */
+  .field label{display:block; font-size:9.5px; color:var(--text-muted); margin:0 0 3px;}
+  .field .value, .field input, .field select{width:100%; background:var(--bg-card2); border:0.5px solid var(--border); border-radius:6px; padding:7px 9px; font-size:11.5px; color:var(--text); font-family:inherit;}
+  .field .value.gold{color:var(--gold-text);}
+  .field .value.blue{color:var(--blue);}
+  .field .value.green{color:var(--green);}
+  .field .value.muted{color:var(--text-dim);}
+  .grid{display:grid; gap:10px 14px;}
+  .grid-2{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .grid-3{grid-template-columns:repeat(3,minmax(0,1fr));}
+  .grid-4{grid-template-columns:repeat(4,minmax(0,1fr));}
+  .span-2{grid-column:span 2;}
+  .span-4{grid-column:span 4;}
+
+  /* Wizard tabs */
+  .wizard-pills{display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap;}
+  .wizard-pill{background:var(--bg-card); color:var(--text-muted); font-size:10.5px; padding:5px 12px; border-radius:20px; white-space:nowrap; cursor:pointer;}
+  .wizard-pill.active{background:var(--gold); color:var(--gold-ink); font-weight:500;}
+  .wizard-tab{display:none;}
+  .wizard-tab.active{display:block;}
+
+  /* Billing subnav */
+  .subnav{display:flex; gap:4px; margin-bottom:16px; border-bottom:0.5px solid var(--border); flex-wrap:wrap;}
+  .subnav-item{padding:9px 13px; font-size:11.5px; color:var(--text-muted); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px;}
+  .subnav-item.active{color:var(--gold); border-bottom-color:var(--gold);}
+  .subnav-gap{margin-left:8px;}
+  .billing-tab{display:none;}
+  .billing-tab.active{display:block;}
+
+  /* Dashboard cards */
+  .dash-grid{display:grid; grid-template-columns:1.3fr 1fr; gap:14px; margin-bottom:14px;}
+  .dash-row{display:flex; justify-content:space-between; align-items:center; padding:8px 9px; background:var(--bg-card2); border-radius:6px; margin-bottom:6px;}
+  .dash-row:last-child{margin-bottom:0;}
+  .dash-row .main{font-size:11px; color:var(--text-heading);}
+  .dash-row .sub{font-size:9.5px; color:var(--text-muted); margin-top:2px;}
+
+  .list-item{background:var(--bg-card2); border-radius:6px; padding:7px 9px; margin-bottom:5px;}
+  .list-item:last-child{margin-bottom:0;}
+  .list-row{display:flex; justify-content:space-between; align-items:center;}
+
+  .empty-state{display:flex; flex-direction:column; align-items:center; justify-content:center; padding:80px 20px; text-align:center; color:var(--text-muted);}
+  .empty-state i{font-size:34px; color:var(--text-dim); margin-bottom:12px;}
+  .empty-state h2{font-size:15px; color:var(--text-heading); margin:0 0 6px; font-weight:600;}
+  .empty-state p{font-size:12px; margin:0; max-width:340px;}
+
+  .info-note{font-size:9.5px; color:var(--text-dim); margin:0 0 12px; display:flex; align-items:center; gap:5px;}
+  .link-back{display:inline-flex; align-items:center; gap:5px; font-size:11px; color:var(--text-muted); margin-bottom:12px; cursor:pointer;}
+  .link-back:hover{color:var(--text-heading);}
+
+  /* Toast */
+  .toast{position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--gold); color:var(--gold-ink); padding:11px 18px; border-radius:8px; font-size:12px; font-weight:500; opacity:0; pointer-events:none; transition:all .25s ease; z-index:999; box-shadow:0 8px 24px rgba(0,0,0,.4); display:flex; align-items:center; gap:8px;}
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+  .checkbox-row{display:flex; align-items:center; gap:7px; background:var(--bg-card2); border:0.5px solid var(--border); border-radius:6px; padding:8px 10px; width:fit-content;}
+  .checkbox-row input{width:13px; height:13px;}
+  .checkbox-row span{font-size:11px;}
+
+  ::-webkit-scrollbar{width:9px; height:9px;}
+  ::-webkit-scrollbar-thumb{background:#1e3350; border-radius:5px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand"><div class="logo">A</div><span>My Fedarb</span></div>
+    <nav>
+      <a class="nav-item" data-nav="dashboard" onclick="showView('dashboard')"><i class="ti ti-layout-dashboard"></i>Dashboard</a>
+      <a class="nav-item" data-nav="cases" onclick="showView('cases')"><i class="ti ti-gavel"></i>Cases</a>
+      <a class="nav-item" data-nav="billing" onclick="showView('billing')"><i class="ti ti-receipt"></i>Billing</a>
+      <a class="nav-item" data-nav="accounting" onclick="showPlaceholder('accounting','Accounting','ti-calculator','Ledger sync, trust accounting, and reconciliation tools would live here.')"><i class="ti ti-calculator"></i>Accounting</a>
+      <a class="nav-item" data-nav="accounts" onclick="showPlaceholder('accounts','Accounts','ti-building','Firms, companies, and organizations tied to your cases would be managed here.')"><i class="ti ti-building"></i>Accounts</a>
+      <a class="nav-item" data-nav="contacts" onclick="showPlaceholder('contacts','Contacts','ti-address-book','Counsel, panelists, and parties across every case would be searchable here.')"><i class="ti ti-address-book"></i>Contacts</a>
+      <a class="nav-item" data-nav="reports" onclick="showPlaceholder('reports','Reports','ti-chart-bar','Revenue, caseload, and panelist utilization reporting would live here.')"><i class="ti ti-chart-bar"></i>Reports</a>
+      <div class="nav-divider"></div>
+      <a class="nav-item" data-nav="zoom" onclick="showPlaceholder('zoom','Zoom','ti-video','Manage linked Zoom meetings for hearings and conference calls here.')"><i class="ti ti-video"></i>Zoom</a>
+      <a class="nav-item" data-nav="docusign" onclick="showPlaceholder('docusign','DocuSign','ti-signature','Track envelopes sent for arbitration and mediation agreements here.')"><i class="ti ti-signature"></i>DocuSign</a>
+      <a class="nav-item nav-bottom" data-nav="settings" onclick="showPlaceholder('settings','Settings','ti-settings','Users, permissions, fee schedules, and org preferences would live here.')"><i class="ti ti-settings"></i>Settings</a>
+    </nav>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="content">
+    <div id="toast" class="toast"><i class="ti ti-circle-check"></i><span id="toastMsg"></span></div>
+
+    <!-- ============ DASHBOARD ============ -->
+    <section id="view-dashboard" class="view active">
+      <div class="page-header">
+        <div>
+          <h1>Dashboard</h1>
+          <div class="subtitle">Sunday, July 12, 2026</div>
+        </div>
+        <div class="header-icons">
+          <i class="ti ti-search"></i>
+          <i class="ti ti-bell"></i>
+          <div class="avatar">AD</div>
+        </div>
+      </div>
+
+      <div class="dash-grid">
+        <div class="panel">
+          <p class="panel-title">Upcoming hearings</p>
+          <div class="dash-row">
+            <div>
+              <div class="main">Acme Corp v. Meridian Industries</div>
+              <div class="sub">Fri, Jul 24 &middot; 9:00 AM &middot; Zoom</div>
+            </div>
+            <span class="btn btn-outline-gold" style="padding:5px 11px;" onclick="openCase(); toast('Joining Zoom for Acme Corp v. Meridian Industries...')"><i class="ti ti-video" style="font-size:12px;"></i>Join Zoom</span>
+          </div>
+          <div class="dash-row">
+            <div>
+              <div class="main">Northstar Energy v. Halden Industries</div>
+              <div class="sub">Thu, Aug 13 &middot; Location TBD</div>
+            </div>
+            <span class="btn btn-outline" style="padding:5px 11px; opacity:.5;">Not scheduled</span>
+          </div>
+          <div class="dash-row">
+            <div>
+              <div class="main">Folsom Medical Group v. Cerbo LLC</div>
+              <div class="sub">Mediation session &middot; continuing</div>
+            </div>
+            <span class="btn btn-outline-gold" style="padding:5px 11px;" onclick="toast('Joining Zoom for Folsom Medical Group v. Cerbo LLC...')"><i class="ti ti-video" style="font-size:12px;"></i>Join Zoom</span>
+          </div>
+        </div>
+
+        <div class="panel">
+          <p class="panel-title">Today's follow-ups</p>
+          <div class="list-item"><div class="list-row"><span style="font-size:11px; color:var(--text-heading);">Acme Corp v. Meridian</span><span class="pill pill-orange">Payment due</span></div><div class="sub" style="font-size:9.5px; color:var(--text-muted); margin-top:2px;">Filing fee due 6/30; disclosures sent 7/8</div></div>
+          <div class="list-item"><div class="list-row"><span style="font-size:11px; color:var(--text-heading);">Reyes Family Trust</span><span class="pill pill-orange">Payment due</span></div><div class="sub" style="font-size:9.5px; color:var(--text-muted); margin-top:2px;">Invoice emailed to comptroller 6/29</div></div>
+          <div class="list-item"><div class="list-row"><span style="font-size:11px; color:var(--text-heading);">Roth v. Legacy Clark</span><span class="pill pill-orange">Payment due</span></div><div class="sub" style="font-size:9.5px; color:var(--text-muted); margin-top:2px;">Objection from respondent expected 7/13</div></div>
+        </div>
+      </div>
+
+      <div class="dash-grid">
+        <div class="panel">
+          <p class="panel-title">Outstanding invoices</p>
+          <div class="dash-row" style="cursor:pointer;" onclick="showView('billing'); showBillingTab('invoices')">
+            <div><div class="main">INV-10456 &middot; Acme Corp v. Meridian</div><div class="sub">Due Jul 20, 2026</div></div>
+            <span style="font-size:11.5px; color:var(--text-heading);">$5,143</span>
+          </div>
+          <div class="dash-row" style="cursor:pointer;" onclick="showView('billing'); showBillingTab('invoices')">
+            <div><div class="main">INV-10461 &middot; Reyes Family Trust</div><div class="sub">Due Jul 15, 2026</div></div>
+            <span style="font-size:11.5px; color:var(--text-heading);">$15,688</span>
+          </div>
+          <div class="dash-row" style="cursor:pointer;" onclick="showView('billing'); showBillingTab('invoices')">
+            <div><div class="main">INV-10298 &middot; Folsom v. Cerbo LLC</div><div class="sub" style="color:var(--orange);">Overdue</div></div>
+            <span style="font-size:11.5px; color:var(--text-heading);">$2,000</span>
+          </div>
+        </div>
+
+        <div class="panel">
+          <p class="panel-title">Outstanding DocuSign requests</p>
+          <div class="list-item"><div class="list-row"><span style="font-size:11px;">Arbitration agreement</span><i class="ti ti-signature" style="font-size:13px; color:var(--blue);"></i></div><div class="sub" style="font-size:9.5px; color:var(--text-muted); margin-top:2px;">Acme Corp v. Meridian &middot; sent Jul 8</div></div>
+          <div class="list-item"><div class="list-row"><span style="font-size:11px;">Mediation agreement</span><i class="ti ti-signature" style="font-size:13px; color:var(--blue);"></i></div><div class="sub" style="font-size:9.5px; color:var(--text-muted); margin-top:2px;">Folsom v. Cerbo LLC &middot; sent Jul 1</div></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <p class="panel-title">Shared calendar &middot; next 7 days</p>
+        <div class="grid grid-4" style="gap:8px;">
+          <div class="list-item"><div style="font-size:9.5px; color:var(--gold-text);">Mon, Jul 13</div><div style="font-size:11px; margin-top:3px;">Follow-ups due &middot; 3 cases</div></div>
+          <div class="list-item"><div style="font-size:9.5px; color:var(--gold-text);">Wed, Jul 15</div><div style="font-size:11px; margin-top:3px;">Reyes invoice due</div></div>
+          <div class="list-item"><div style="font-size:9.5px; color:var(--gold-text);">Mon, Jul 20</div><div style="font-size:11px; margin-top:3px;">Acme deposit due</div></div>
+          <div class="list-item"><div style="font-size:9.5px; color:var(--gold-text);">Fri, Jul 24</div><div style="font-size:11px; margin-top:3px;">Acme hearing &middot; 9:00 AM</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CASES ============ -->
+    <section id="view-cases" class="view">
+      <div class="page-header">
+        <div>
+          <h1>Cases</h1>
+          <div class="subtitle">6 items &middot; Sorted by follow-up date &middot; Updated a few seconds ago</div>
+        </div>
+        <div class="toolbar">
+          <div class="search-box"><i class="ti ti-search"></i><span>Search this list...</span></div>
+          <i class="ti ti-adjustments-horizontal icon-btn"></i>
+          <i class="ti ti-layout-columns icon-btn"></i>
+          <i class="ti ti-refresh icon-btn"></i>
+          <span class="btn btn-gold" onclick="openCase()"><i class="ti ti-plus" style="font-size:12px;"></i>New case</span>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table style="min-width:1780px;">
+          <thead><tr>
+            <th style="width:24px;"><input type="checkbox" /></th>
+            <th>Type</th><th>Inquiry date</th><th>Case status</th><th>Last contact</th>
+            <th>Follow-up date</th><th>Matter</th><th>Stage</th><th style="min-width:220px;">Next steps</th>
+            <th>Hearing date</th><th style="text-align:right;">Est. revenue</th><th>Revenue date</th><th>Revenue status</th>
+            <th style="border-left:0.5px solid var(--border); text-align:right;">Est. revenue 2</th><th>Revenue 2 date</th><th>Deposit received</th>
+          </tr></thead>
+          <tbody id="casesTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============ NEW CASE WIZARD ============ -->
+    <section id="view-newcase" class="view">
+      <span class="link-back" onclick="showView('cases')"><i class="ti ti-arrow-left"></i>Back to cases</span>
+
+      <div class="page-header">
+        <p style="font-size:16px; font-weight:500; margin:0; color:var(--text-heading);">New case / inquiry &ndash; Acme Corp v. Meridian Industries</p>
+        <div style="display:flex; gap:8px;">
+          <span class="btn btn-outline" onclick="toast('Draft saved')">Save as draft</span>
+          <span class="btn btn-outline-gold" onclick="toast('Inquiry created')"><i class="ti ti-plus" style="font-size:12px;"></i>Create inquiry</span>
+          <span class="btn btn-gold" onclick="toast('Converted to case')"><i class="ti ti-arrows-right-left" style="font-size:12px;"></i>Convert to case</span>
+        </div>
+      </div>
+
+      <div class="wizard-pills">
+        <span class="wizard-pill" data-tab="1" onclick="showWizardTab(1)">1. Details</span>
+        <span class="wizard-pill" data-tab="2" onclick="showWizardTab(2)">2. Case history</span>
+        <span class="wizard-pill" data-tab="3" onclick="showWizardTab(3)">3. Hearing &amp; conf. call</span>
+        <span class="wizard-pill" data-tab="4" onclick="showWizardTab(4)">4. Document submission</span>
+        <span class="wizard-pill" data-tab="5" onclick="showWizardTab(5)">5. Agreement &amp; deposit</span>
+        <span class="wizard-pill" data-tab="6" onclick="showWizardTab(6)">6. Inquiry details</span>
+        <span class="wizard-pill" data-tab="7" onclick="showWizardTab(7)">7. Case information</span>
+        <span class="wizard-pill" data-tab="8" onclick="showWizardTab(8)">8. Documents</span>
+      </div>
+
+      <!-- Tab 1: Details -->
+      <div class="wizard-tab" id="wtab-1">
+        <p class="info-note"><i class="ti ti-info-circle"></i>Save as an inquiry to track it before qualifying &ndash; convert to a case once it's ready to move forward.</p>
+        <div class="grid grid-3">
+          <div class="field"><label>Opportunity name</label><div class="value">Acme Corp v. Meridian Industries</div></div>
+          <div class="field"><label>Account name (panelist)</label><div class="value">Hon. Walter D. Kelley Jr.</div></div>
+          <div class="field"><label>Case manager name</label><div class="value">Adm Tommega</div></div>
+          <div class="field"><label>Case type</label><div class="value gold">Arbitration</div></div>
+          <div class="field"><label>Case ID <span style="color:var(--text-dim);">(year-manager-type-panelist-date)</span></label><div class="value" style="letter-spacing:.3px;">F26-AD-A-WK-0712</div></div>
+          <div class="field"><label>Case status</label><div class="value gold">Inquiry</div></div>
+          <div class="field"><label>Settlement status</label><div class="value">Not settled</div></div>
+          <div class="field"><label>Cancel reason</label><div class="value muted">&mdash;</div></div>
+          <div class="field"><label>Setup fee</label><div class="value">$500</div></div>
+        </div>
+      </div>
+
+      <!-- Tab 2: Case history -->
+      <div class="wizard-tab" id="wtab-2">
+        <div class="grid grid-3">
+          <div class="field"><label>Last contact date</label><div class="value">6/30/2026</div></div>
+          <div class="field"><label>Follow-up date</label><div class="value">7/10/2026</div></div>
+          <div class="field"><label>Next step</label><div class="value">Filing fee due 6/30; disclosures sent 7/8</div></div>
+          <div class="field"><label>Stage</label><div class="value" style="color:var(--orange);">Payment due</div></div>
+          <div class="field"><label>Revenue status</label><div class="value">Estimated</div></div>
+          <div class="field"><label>Estimated revenue</label><div class="value">$5,143</div></div>
+          <div class="field"><label>Revenue date</label><div class="value">7/31/2026</div></div>
+          <div class="field"><label>Estimated revenue 2</label><div class="value">$981</div></div>
+          <div class="field"><label>Revenue 2 date</label><div class="value">7/31/2026</div></div>
+        </div>
+      </div>
+
+      <!-- Tab 3: Hearing & conf call -->
+      <div class="wizard-tab" id="wtab-3">
+        <p class="panel-title">Hearing</p>
+        <div class="grid grid-4" style="margin-bottom:18px;">
+          <div class="field"><label>Hearing status</label><div class="value green">Confirmed</div></div>
+          <div class="field"><label>Date confirmed</label><div class="value">7/1/2026</div></div>
+          <div class="field"><label>Holding date</label><div class="value">7/20/2026</div></div>
+          <div class="field"><label>Hearing date</label><div class="value">7/24/2026</div></div>
+          <div class="field"><label>Hearing start time</label><div class="value">9:00 AM</div></div>
+          <div class="field"><label>Location</label><div class="value blue">Zoom</div></div>
+          <div class="field"><label>Attendees &ndash; plaintiff</label><div class="value">J. Alvarez, Sidley Austin</div></div>
+          <div class="field"><label>Attendees &ndash; defendant</label><div class="value">M. Reyes, Cooley LLP</div></div>
+        </div>
+        <p class="panel-title">Conference call</p>
+        <div class="grid grid-4">
+          <div class="field"><label>Conference call status</label><div class="value gold">Scheduled</div></div>
+          <div class="field"><label>Conference call date</label><div class="value">7/15/2026</div></div>
+          <div class="field"><label>Conference call time</label><div class="value">2:00 PM</div></div>
+          <div class="field"><label>Conference call attendees</label><div class="value">Both counsel, case manager</div></div>
+        </div>
+      </div>
+
+      <!-- Tab 4: Document submission -->
+      <div class="wizard-tab" id="wtab-4">
+        <div class="grid grid-3">
+          <div class="field"><label>Document submission status</label><div class="value gold">In progress</div></div>
+          <div class="field span-2"><label>Document submission instructions</label><div class="value">Submit pre-hearing briefs and exhibit lists by 7/20</div></div>
+          <div class="field"><label>Document submission due date</label><div class="value">7/20/2026</div></div>
+        </div>
+      </div>
+
+      <!-- Tab 5: Agreement & deposit -->
+      <div class="wizard-tab" id="wtab-5">
+        <div class="grid grid-3">
+          <div class="field"><label>Setup fee</label><div class="value">$500</div></div>
+          <div class="field"><label>Administration fee</label><div class="value">$750</div></div>
+          <div class="field"><label>Deposit invoice status</label><div class="value gold" style="display:flex; justify-content:space-between;">Sent <i class="ti ti-chevron-down" style="font-size:11px; color:var(--text-muted);"></i></div></div>
+          <div class="field span-2"><label>Special instructions</label><div class="value">Split billing 50/50 between claimant and respondent</div></div>
+          <div class="field"><label>Deposit due date</label><div class="value">7/20/2026</div></div>
+          <div class="field"><label>Amount due</label><div class="value">$5,143</div></div>
+        </div>
+      </div>
+
+      <!-- Tab 6: Inquiry details -->
+      <div class="wizard-tab" id="wtab-6">
+        <div class="checkbox-row" style="margin-bottom:14px;"><input type="checkbox" /><span>This is an international case</span></div>
+        <div class="grid grid-4">
+          <div class="field"><label>Inquiry date</label><div class="value">5/20/2025</div></div>
+          <div class="field"><label>Initial contact</label><input type="text" value="Jack Lilley" /></div>
+          <div class="field"><label>Inquiry contact type</label><div class="value">Counsel</div></div>
+          <div class="field"><label>From firm</label><div class="value">Latham &amp; Watkins</div></div>
+          <div class="field"><label>Counsel for</label><div class="value blue">Claimant</div></div>
+          <div class="field"><label>Email</label><div class="value">jsmith@lw.com</div></div>
+          <div class="field"><label>Phone</label><div class="value">(212) 555-0148</div></div>
+          <div class="field"><label>Cell phone</label><div class="value">(917) 555-0199</div></div>
+          <div class="field"><label>Case type</label><div class="value gold">Arbitration</div></div>
+          <div class="field"><label>Dispute type</label><div class="value">Commercial contract</div></div>
+          <div class="field"><label>Location</label><div class="value">New York, NY</div></div>
+          <div class="field"><label>Days requested</label><div class="value">3</div></div>
+          <div class="field"><label>Time frame requested</label><div class="value">Q3 2026</div></div>
+          <div class="field"><label>Source of inquiry</label><div class="value">Referral</div></div>
+          <div class="field"><label>Referred by</label><div class="value">Kenneth Feinberg</div></div>
+          <div class="field"></div>
+          <div class="field span-4"><label>Comments</label><div class="value" style="min-height:38px;">Seeking expedited arbitration; panelist with antitrust background preferred.</div></div>
+        </div>
+      </div>
+
+      <!-- Tab 7: Case information -->
+      <div class="wizard-tab" id="wtab-7">
+        <div class="grid grid-3">
+          <div class="field"><label>Case name</label><div class="value">Acme Corp v. Meridian Industries</div></div>
+          <div class="field"><label>Case value</label><div class="value">$2.4M</div></div>
+          <div class="field"><label>Fee schedule</label><div class="value">Standard arbitration schedule</div></div>
+          <div class="field span-2"><label>Service list <span style="color:var(--text-dim);">(type names, comma-separated)</span></label><input type="text" value="Latham &amp; Watkins LLP, Cooley LLP, J. Alvarez, M. Reyes" /></div>
+          <div class="field"><label>Conflict check status</label><div class="value green">Cleared</div></div>
+          <div class="field"><label>Plaintiff counsel</label><input type="text" value="Latham &amp; Watkins LLP" /></div>
+          <div class="field"><label>Defendant counsel</label><input type="text" value="Cooley LLP" /></div>
+        </div>
+      </div>
+
+      <!-- Tab 8: Documents -->
+      <div class="wizard-tab" id="wtab-8">
+
+        <div class="panel" style="margin-bottom:16px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+            <p class="panel-title" style="margin:0;">Client document upload</p>
+            <span class="btn btn-outline-gold" onclick="toast('Upload window opened')"><i class="ti ti-upload" style="font-size:12px;"></i>Upload document</span>
+          </div>
+          <div style="border:1px dashed #3a4d6b; border-radius:8px; padding:22px; text-align:center; margin-bottom:12px; cursor:pointer;" onclick="toast('Upload window opened')">
+            <i class="ti ti-cloud-upload" style="font-size:22px; color:var(--text-muted);"></i>
+            <p style="font-size:11px; color:var(--text-muted); margin:8px 0 0;">Drag and drop files here, or click to browse</p>
+            <p style="font-size:9.5px; color:var(--text-dim); margin:3px 0 0;">Accepted by claimant, respondent, or counsel &middot; PDF, DOCX, XLSX up to 25MB</p>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <div class="list-item">
+              <div class="list-row">
+                <span style="display:flex; align-items:center; gap:8px; font-size:11px; color:var(--text-heading);"><i class="ti ti-file-type-pdf" style="font-size:15px; color:var(--orange);"></i>Demand_for_Arbitration.pdf</span>
+                <span style="display:flex; align-items:center; gap:10px;"><span class="pill pill-green">Reviewed</span><i class="ti ti-download" style="font-size:13px; color:var(--text-muted); cursor:pointer;"></i></span>
+              </div>
+              <p style="font-size:9.5px; color:var(--text-muted); margin:3px 0 0 23px;">Uploaded by Latham &amp; Watkins LLP &middot; Jun 2, 2025</p>
+            </div>
+            <div class="list-item">
+              <div class="list-row">
+                <span style="display:flex; align-items:center; gap:8px; font-size:11px; color:var(--text-heading);"><i class="ti ti-file-type-pdf" style="font-size:15px; color:var(--orange);"></i>Response_and_Counterclaim.pdf</span>
+                <span style="display:flex; align-items:center; gap:10px;"><span class="pill pill-green">Reviewed</span><i class="ti ti-download" style="font-size:13px; color:var(--text-muted); cursor:pointer;"></i></span>
+              </div>
+              <p style="font-size:9.5px; color:var(--text-muted); margin:3px 0 0 23px;">Uploaded by Cooley LLP &middot; Jun 14, 2025</p>
+            </div>
+            <div class="list-item">
+              <div class="list-row">
+                <span style="display:flex; align-items:center; gap:8px; font-size:11px; color:var(--text-heading);"><i class="ti ti-file-type-doc" style="font-size:15px; color:var(--blue);"></i>Exhibit_List_Pre-Hearing.docx</span>
+                <span style="display:flex; align-items:center; gap:10px;"><span class="pill pill-orange">Pending review</span><i class="ti ti-download" style="font-size:13px; color:var(--text-muted); cursor:pointer;"></i></span>
+              </div>
+              <p style="font-size:9.5px; color:var(--text-muted); margin:3px 0 0 23px;">Uploaded by Latham &amp; Watkins LLP &middot; Jul 8, 2026</p>
+            </div>
+          </div>
+        </div>
+
+        <p class="panel-title">FedArb documents</p>
+        <div class="grid grid-2" style="gap:12px;">
+
+          <div class="panel">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+              <span style="display:flex; align-items:center; gap:6px; font-size:11.5px; font-weight:500; color:var(--text-heading);"><i class="ti ti-receipt" style="font-size:14px; color:var(--gold);"></i>Invoices</span>
+              <span style="font-size:10px; color:var(--text-muted); cursor:pointer;" onclick="showBillingTab('invoices')">View all</span>
+            </div>
+            <div class="list-item"><div class="list-row"><span style="font-size:11px;">INV-10456 &middot; Deposit invoice</span><i class="ti ti-eye" style="font-size:13px; color:var(--blue); cursor:pointer;" onclick="showBillingTab('invoice')"></i></div><p style="font-size:9.5px; color:var(--text-muted); margin:2px 0 0;">Sent Jul 1 &middot; Due Jul 20 &middot; $5,143</p></div>
+          </div>
+
+          <div class="panel">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+              <span style="display:flex; align-items:center; gap:6px; font-size:11.5px; font-weight:500; color:var(--text-heading);"><i class="ti ti-cash" style="font-size:14px; color:var(--gold);"></i>Payments</span>
+              <span style="font-size:10px; color:var(--text-muted); cursor:pointer;" onclick="showBillingTab('payments')">View all</span>
+            </div>
+            <div class="list-item"><div class="list-row"><span style="font-size:11px;">PMT-3301 &middot; Panelist, partial</span><i class="ti ti-eye" style="font-size:13px; color:var(--blue); cursor:pointer;" onclick="showBillingTab('payment')"></i></div><p style="font-size:9.5px; color:var(--text-muted); margin:2px 0 0;">Jul 12, 2026 &middot; $2,500 &middot; Bill.com</p></div>
+          </div>
+
+          <div class="panel">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+              <span style="display:flex; align-items:center; gap:6px; font-size:11.5px; font-weight:500; color:var(--text-heading);"><i class="ti ti-signature" style="font-size:14px; color:var(--gold);"></i>Agreements</span>
+              <span style="font-size:10px; color:var(--text-muted); cursor:pointer;" onclick="toast('Opening DocuSign envelope...')">View all</span>
+            </div>
+            <div class="list-item"><div class="list-row"><span style="font-size:11px;">Arbitration agreement</span><span class="pill pill-orange">Awaiting signature</span></div><p style="font-size:9.5px; color:var(--text-muted); margin:2px 0 0;">Sent via DocuSign &middot; Jul 8, 2026</p></div>
+            <div class="list-item"><div class="list-row"><span style="font-size:11px;">Confidentiality agreement</span><span class="pill pill-green">Signed</span></div><p style="font-size:9.5px; color:var(--text-muted); margin:2px 0 0;">Countersigned &middot; May 28, 2025</p></div>
+          </div>
+
+          <div class="panel">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+              <span style="display:flex; align-items:center; gap:6px; font-size:11.5px; font-weight:500; color:var(--text-heading);"><i class="ti ti-folder" style="font-size:14px; color:var(--gold);"></i>Misc</span>
+              <span style="font-size:10px; color:var(--text-muted); cursor:pointer;" onclick="toast('Opening misc documents...')">View all</span>
+            </div>
+            <div class="list-item"><div class="list-row"><span style="font-size:11px;">Panelist disclosure statement</span><i class="ti ti-download" style="font-size:13px; color:var(--text-muted); cursor:pointer;"></i></div><p style="font-size:9.5px; color:var(--text-muted); margin:2px 0 0;">Generated Jun 5, 2025</p></div>
+            <div class="list-item"><div class="list-row"><span style="font-size:11px;">Scheduling order</span><i class="ti ti-download" style="font-size:13px; color:var(--text-muted); cursor:pointer;"></i></div><p style="font-size:9.5px; color:var(--text-muted); margin:2px 0 0;">Sent to counsel &middot; Jun 30, 2026</p></div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ BILLING ============ -->
+    <section id="view-billing" class="view">
+      <div class="page-header">
+        <div>
+          <h1>Billing</h1>
+          <div class="subtitle">Create and manage invoices</div>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <span class="btn btn-gold" onclick="showBillingTab('invoice')"><i class="ti ti-plus" style="font-size:12px;"></i>New invoice</span>
+          <span class="btn btn-outline" onclick="showBillingTab('payment')"><i class="ti ti-cash" style="font-size:12px;"></i>New payment</span>
+          <span class="btn" style="border:0.5px solid #a3572d; color:#e0a97a;" onclick="showBillingTab('refund')"><i class="ti ti-receipt-refund" style="font-size:12px;"></i>Refund</span>
+        </div>
+      </div>
+
+      <div class="subnav">
+        <span class="subnav-item" data-btab="invoice" onclick="showBillingTab('invoice')">Create invoice</span>
+        <span class="subnav-item" data-btab="payment" onclick="showBillingTab('payment')">Create payment</span>
+        <span class="subnav-item" data-btab="refund" onclick="showBillingTab('refund')">Create refund</span>
+        <span class="subnav-item subnav-gap" data-btab="invoices" onclick="showBillingTab('invoices')">Invoices</span>
+        <span class="subnav-item" data-btab="payments" onclick="showBillingTab('payments')">Payments</span>
+      </div>
+
+      <!-- Create invoice -->
+      <div class="billing-tab" id="btab-invoice">
+        <p class="panel-title">Invoice type</p>
+        <div class="chip-row" style="margin-bottom:16px;">
+          <span class="chip">Arbitration</span>
+          <span class="chip">Expert</span>
+          <span class="chip active">Mediation</span>
+          <span class="chip">Special master</span>
+          <span class="chip">Mass arbitration</span>
+          <span class="chip">Mock</span>
+          <span class="chip">Misc <i class="ti ti-pencil" style="font-size:10px;"></i></span>
+        </div>
+
+        <div class="panel" style="margin-bottom:18px; max-width:640px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+            <p style="font-size:12px; font-weight:500; color:var(--text-heading); margin:0;">Mediation deposit invoice</p>
+            <div style="display:flex; align-items:center; gap:6px; background:var(--bg-card2); border:1px solid var(--border); border-radius:20px; padding:4px 10px;">
+              <i class="ti ti-link" style="font-size:12px; color:var(--blue);"></i>
+              <span style="font-size:10.5px; color:var(--blue);">Linked: Folsom Medical Group v. Cerbo LLC</span>
+              <i class="ti ti-chevron-down" style="font-size:11px; color:var(--text-muted);"></i>
+            </div>
+          </div>
+          <div class="grid grid-2" style="margin-bottom:14px;">
+            <div class="field"><label>Case number</label><div class="value">FA-2026-0298</div></div>
+            <div class="field"><label>Invoice number</label><div class="value">INV-10456</div></div>
+            <div class="field span-2"><label>Case style</label><div class="value">Folsom Medical Group, PLLC, et al. v. Cerbo, LLC</div></div>
+            <div class="field"><label>Panelist</label><div class="value">Hon. Walter D. Kelley Jr.</div></div>
+            <div class="field"><label>Invoice date</label><div class="value">7/11/2026</div></div>
+          </div>
+
+          <p style="font-size:9.5px; color:var(--text-muted); margin:0 0 6px;">Billed to <span style="color:var(--blue); cursor:pointer;">+ add party</span></p>
+          <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:14px;">
+            <div style="background:var(--bg-card2); border:0.5px solid var(--border); border-radius:8px; padding:9px 10px;">
+              <div style="display:grid; grid-template-columns:1fr 70px 24px; gap:8px; align-items:center; margin-bottom:6px;">
+                <span style="font-size:11px;">Folsom Medical Group, PLLC</span><span style="font-size:11px; text-align:right;">33%</span><i class="ti ti-x" style="font-size:13px; color:var(--text-muted); justify-self:center;"></i>
+              </div>
+              <p style="font-size:10px; color:var(--text-muted); margin:0; display:flex; align-items:center; gap:5px;"><i class="ti ti-map-pin" style="font-size:11px; color:var(--blue);"></i>2140 Westheimer Rd, Suite 300, Houston, TX 77098 <span style="color:#5a7a4a; background:var(--green-bg); font-size:8.5px; padding:1px 6px; border-radius:10px; margin-left:2px;">auto-filled</span></p>
+            </div>
+            <div style="background:var(--bg-card2); border:0.5px solid var(--border); border-radius:8px; padding:9px 10px;">
+              <div style="display:grid; grid-template-columns:1fr 70px 24px; gap:8px; align-items:center; margin-bottom:6px;">
+                <span style="font-size:11px;">Cerbo, LLC</span><span style="font-size:11px; text-align:right;">67%</span><i class="ti ti-x" style="font-size:13px; color:var(--text-muted); justify-self:center;"></i>
+              </div>
+              <p style="font-size:10px; color:var(--text-muted); margin:0; display:flex; align-items:center; gap:5px;"><i class="ti ti-map-pin" style="font-size:11px; color:var(--blue);"></i>488 Madison Ave, 12th Floor, New York, NY 10022 <span style="color:#5a7a4a; background:var(--green-bg); font-size:8.5px; padding:1px 6px; border-radius:10px; margin-left:2px;">auto-filled</span></p>
+            </div>
+          </div>
+
+          <p style="font-size:9.5px; color:var(--text-muted); margin:0 0 6px;">Line items <span style="color:var(--blue); cursor:pointer;" onclick="toast('Line item added')">+ add line item</span></p>
+          <div style="border:0.5px solid var(--border); border-radius:6px; overflow:hidden; margin-bottom:10px;">
+            <div style="display:grid; grid-template-columns:1fr 90px 24px; background:var(--bg-card2); padding:6px 9px; font-size:9.5px; color:var(--text-muted);"><span>Description</span><span style="text-align:right;">Amount</span><span></span></div>
+            <div style="display:grid; grid-template-columns:1fr 90px 24px; padding:6px 9px; gap:8px; align-items:center; border-top:0.5px solid var(--border);">
+              <input type="text" value="Mediation session, half-day" style="background:var(--bg-card2); border:0.5px solid var(--border); border-radius:5px; padding:5px 8px; font-size:11px; color:var(--text);" />
+              <input type="text" value="$1,500" style="background:var(--bg-card2); border:0.5px solid var(--border); border-radius:5px; padding:5px 8px; font-size:11px; color:var(--text); text-align:right;" />
+              <i class="ti ti-x" style="font-size:13px; color:var(--text-muted); justify-self:center;"></i>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 90px 24px; padding:6px 9px; gap:8px; align-items:center; border-top:0.5px solid var(--border);">
+              <input type="text" value="Pre-session case review" style="background:var(--bg-card2); border:0.5px solid var(--border); border-radius:5px; padding:5px 8px; font-size:11px; color:var(--text);" />
+              <input type="text" value="$500" style="background:var(--bg-card2); border:0.5px solid var(--border); border-radius:5px; padding:5px 8px; font-size:11px; color:var(--text); text-align:right;" />
+              <i class="ti ti-x" style="font-size:13px; color:var(--text-muted); justify-self:center;"></i>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 90px 24px; padding:7px 9px; font-size:11px; border-top:0.5px solid var(--border); background:var(--bg-card2);"><span style="text-align:right; color:var(--text-muted);">Total</span><span style="text-align:right; color:var(--gold); font-weight:500;">$2,000</span><span></span></div>
+          </div>
+
+          <div style="display:flex; gap:8px;">
+            <span class="btn btn-gold btn-block" onclick="toast('Invoice INV-10456 sent to Folsom Medical Group and Cerbo LLC')">Send invoice</span>
+            <span class="btn btn-outline btn-block" onclick="toast('Draft saved')">Save as draft</span>
+            <span class="btn btn-outline btn-block" onclick="toast('Opening invoice preview...')"><i class="ti ti-eye" style="font-size:13px;"></i>Preview invoice</span>
+          </div>
+        </div>
+
+        <div class="grid grid-2">
+          <div>
+            <p class="panel-title">Outstanding payments due</p>
+            <div class="dash-row"><span style="font-size:11px; color:var(--text-heading);">Acme Corp v. Meridian</span><span style="font-size:11px; color:#c7cedb;">$5,143</span><span style="font-size:9.5px; color:var(--gold-text);">Jul 20</span></div>
+            <div class="dash-row"><span style="font-size:11px; color:var(--text-heading);">Reyes Family Trust</span><span style="font-size:11px; color:#c7cedb;">$15,688</span><span style="font-size:9.5px; color:var(--gold-text);">Jul 15</span></div>
+            <div class="dash-row"><span style="font-size:11px; color:var(--text-heading);">Folsom v. Cerbo LLC</span><span style="font-size:11px; color:#c7cedb;">$2,000</span><span style="font-size:9.5px; color:var(--orange);">Overdue</span></div>
+            <div class="dash-row"><span style="font-size:11px; color:var(--text-heading);">Larson mock exercise</span><span style="font-size:11px; color:#c7cedb;">$12,000</span><span style="font-size:9.5px; color:var(--orange);">Overdue</span></div>
+          </div>
+          <div>
+            <p class="panel-title">Past invoices</p>
+            <div class="list-item"><div class="list-row"><span><span style="font-size:11px; color:var(--text-heading);">INV-10441</span><span style="font-size:9.5px; color:var(--green); margin-left:6px;">Paid</span></span><span style="display:flex; gap:6px;"><i class="ti ti-eye" style="font-size:13px; color:var(--text-muted);"></i><i class="ti ti-square-rounded-plus" style="font-size:13px; color:var(--blue);"></i></span></div><p style="font-size:9.5px; color:var(--text-muted); margin:2px 0 0;">Roth v. Legacy Clark &middot; sent Jul 6</p></div>
+            <div class="list-item"><div class="list-row"><span><span style="font-size:11px; color:var(--text-heading);">INV-10438</span><span style="font-size:9.5px; color:var(--gold-text); margin-left:6px;">Pending</span></span><span style="display:flex; gap:6px;"><i class="ti ti-eye" style="font-size:13px; color:var(--text-muted);"></i><i class="ti ti-square-rounded-plus" style="font-size:13px; color:var(--blue);"></i></span></div><p style="font-size:9.5px; color:var(--text-muted); margin:2px 0 0;">Northstar v. Halden &middot; sent Jul 3</p></div>
+            <div class="list-item"><div class="list-row"><span><span style="font-size:11px; color:var(--text-heading);">INV-10429</span><span style="font-size:9.5px; color:var(--green); margin-left:6px;">Paid</span></span><span style="display:flex; gap:6px;"><i class="ti ti-eye" style="font-size:13px; color:var(--text-muted);"></i><i class="ti ti-square-rounded-plus" style="font-size:13px; color:var(--blue);"></i></span></div><p style="font-size:9.5px; color:var(--text-muted); margin:2px 0 0;">Larson mock exercise &middot; sent Jun 26</p></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Create payment -->
+      <div class="billing-tab" id="btab-payment">
+        <div class="panel" style="max-width:600px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+            <p style="font-size:12px; font-weight:500; color:var(--text-heading); margin:0;">Record payment</p>
+            <div style="display:flex; align-items:center; gap:6px; background:var(--bg-card2); border:1px solid var(--border); border-radius:20px; padding:4px 10px;">
+              <i class="ti ti-link" style="font-size:12px; color:var(--blue);"></i><span style="font-size:10.5px; color:var(--blue);">Linked: Acme Corp v. Meridian Industries</span><i class="ti ti-chevron-down" style="font-size:11px; color:var(--text-muted);"></i>
+            </div>
+          </div>
+          <div class="grid grid-2" style="margin-bottom:14px;">
+            <div class="field"><label>Case number</label><div class="value">F26-AD-A-WK-0712</div></div>
+            <div class="field"><label>Invoice number</label><div class="value" style="display:flex; justify-content:space-between;"><span>INV-10456</span><i class="ti ti-search" style="font-size:12px; color:var(--text-muted);"></i></div></div>
+            <div class="field span-2"><label>Case style</label><div class="value">Acme Corp v. Meridian Industries</div></div>
+            <div class="field"><label>Panelist name</label><div class="value">Hon. Walter D. Kelley Jr.</div></div>
+            <div class="field"><label>Payment to</label><div class="value" style="display:flex; justify-content:space-between;">Panelist <i class="ti ti-chevron-down" style="font-size:11px; color:var(--text-muted);"></i></div></div>
+            <div class="field"><label>Service</label><div class="value gold" style="display:flex; justify-content:space-between;">Arbitration <i class="ti ti-chevron-down" style="font-size:11px; color:var(--text-muted);"></i></div></div>
+            <div class="field"><label style="visibility:hidden;">spacer</label><div class="value muted" style="font-size:10px;">Mediation &middot; Expert &middot; Special master &middot; Mass arbitration &middot; Mock &middot; Misc</div></div>
+          </div>
+          <div class="field" style="margin-bottom:14px;"><label>Description</label><input type="text" value="Hon. Walter D. Kelly, Jr. payment for arbitration services provided on July 12, 2026" /></div>
+
+          <p style="font-size:9.5px; color:var(--text-muted); margin:0 0 6px;">Payment type</p>
+          <div class="chip-row" style="margin-bottom:14px;">
+            <span class="chip">Full payment</span>
+            <span class="chip active">Partial payment</span>
+            <span class="chip">Remaining payment</span>
+            <span class="chip">Final payment</span>
+          </div>
+
+          <div style="background:var(--bg-card2); border:0.5px solid var(--border); border-radius:8px; padding:9px 10px; margin-bottom:14px;">
+            <p style="font-size:9.5px; color:var(--text-muted); margin:0 0 6px;"><i class="ti ti-link" style="font-size:11px; color:var(--blue);"></i> Link to previous payment <span style="color:var(--text-dim);">(optional &ndash; use to finalize a partial or remaining balance)</span></p>
+            <div style="display:flex; align-items:center; gap:6px; background:var(--bg-card); border:0.5px solid var(--border); border-radius:6px; padding:7px 9px;"><i class="ti ti-search" style="font-size:12px; color:var(--text-muted);"></i><span style="font-size:11px; color:var(--text-muted);">Search prior payments on this invoice...</span></div>
+          </div>
+
+          <div style="background:var(--bg-card2); border:0.5px solid var(--border); border-radius:8px; padding:10px 12px; margin-bottom:14px;">
+            <p style="font-size:9.5px; color:var(--text-muted); margin:0 0 8px;">Partial payment breakdown</p>
+            <div class="grid grid-3">
+              <div><p style="font-size:9px; color:var(--text-muted); margin:0 0 3px;">Invoice total</p><p style="font-size:12.5px; margin:0;">$5,143</p></div>
+              <div><p style="font-size:9px; color:var(--text-muted); margin:0 0 3px;">Amount paying now</p><input type="text" value="$2,500" style="background:var(--bg-card); border:0.5px solid var(--border); border-radius:6px; padding:6px 8px; font-size:12px; color:var(--text); width:100%;" /></div>
+              <div><p style="font-size:9px; color:var(--text-muted); margin:0 0 3px;">Remaining due</p><p style="font-size:12.5px; color:var(--orange); margin:0; font-weight:500;">$2,643</p></div>
+            </div>
+          </div>
+
+          <div class="field" style="margin-bottom:16px;"><label>Payment method</label><div class="value" style="display:flex; justify-content:space-between; align-items:center;"><span><i class="ti ti-building-bank" style="font-size:13px; color:var(--blue); margin-right:5px;"></i>Bill.com</span><i class="ti ti-chevron-down" style="font-size:11px; color:var(--text-muted);"></i></div></div>
+
+          <div style="display:flex; gap:8px;">
+            <span class="btn btn-gold btn-block" onclick="toast('Payment of $2,500 recorded on INV-10456')">Record payment</span>
+            <span class="btn btn-outline btn-block" onclick="toast('Opening payment preview...')"><i class="ti ti-eye" style="font-size:13px;"></i>Preview payment</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Create refund -->
+      <div class="billing-tab" id="btab-refund">
+        <div class="panel" style="max-width:640px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+            <p style="font-size:12px; font-weight:500; color:var(--text-heading); margin:0;">Process refund</p>
+            <div style="display:flex; align-items:center; gap:6px; background:var(--bg-card2); border:1px solid var(--border); border-radius:20px; padding:4px 10px;">
+              <i class="ti ti-link" style="font-size:12px; color:var(--blue);"></i><span style="font-size:10.5px; color:var(--blue);">Linked: Acme Corp v. Meridian Industries</span><i class="ti ti-chevron-down" style="font-size:11px; color:var(--text-muted);"></i>
+            </div>
+          </div>
+          <div class="grid grid-2" style="margin-bottom:14px;">
+            <div class="field"><label>Case number</label><div class="value">F26-AD-A-WK-0712</div></div>
+            <div class="field"><label>Invoice number</label><div class="value" style="display:flex; justify-content:space-between;"><span>INV-10456</span><i class="ti ti-search" style="font-size:12px; color:var(--text-muted);"></i></div></div>
+            <div class="field span-2"><label>Case style</label><div class="value">Acme Corp v. Meridian Industries</div></div>
+            <div class="field span-2"><label>Panelist name</label><div class="value">Hon. Walter D. Kelley Jr.</div></div>
+          </div>
+
+          <p style="font-size:9.5px; color:var(--text-muted); margin:0 0 6px;">Payment to <span style="color:var(--text-dim);">(select all parties involved in this refund)</span> <span style="color:var(--blue); cursor:pointer;">+ add party</span></p>
+          <div class="chip-row" style="margin-bottom:14px;">
+            <span style="display:flex; align-items:center; gap:6px; background:var(--bg-card2); border:1px solid var(--gold); border-radius:20px; padding:5px 6px 5px 11px; font-size:10.5px;">Claimant counsel &ndash; Sidley Austin <i class="ti ti-x" style="font-size:12px; color:var(--text-muted);"></i></span>
+            <span style="display:flex; align-items:center; gap:6px; background:var(--bg-card2); border:1px solid var(--gold); border-radius:20px; padding:5px 6px 5px 11px; font-size:10.5px;">Respondent counsel &ndash; Cooley LLP <i class="ti ti-x" style="font-size:12px; color:var(--text-muted);"></i></span>
+            <span style="display:flex; align-items:center; gap:6px; background:var(--bg-card2); border:1px solid var(--gold); border-radius:20px; padding:5px 6px 5px 11px; font-size:10.5px;">Panelist &ndash; Hon. Walter D. Kelley Jr. <i class="ti ti-x" style="font-size:12px; color:var(--text-muted);"></i></span>
+            <span style="display:flex; align-items:center; gap:6px; background:var(--bg-card); border:1px dashed #3a4d6b; border-radius:20px; padding:5px 11px; font-size:10.5px; color:var(--text-muted); cursor:pointer;"><i class="ti ti-search" style="font-size:11px;"></i>Search parties...</span>
+          </div>
+
+          <p style="font-size:9.5px; color:var(--text-muted); margin:0 0 6px;">Link to previous invoice</p>
+          <div style="display:flex; align-items:center; gap:6px; background:var(--bg-card2); border:0.5px solid var(--border); border-radius:8px; padding:8px 10px; margin-bottom:14px;"><i class="ti ti-search" style="font-size:13px; color:var(--text-muted);"></i><span style="font-size:11px; flex:1;">INV-10456 &middot; Deposit invoice &middot; Acme Corp v. Meridian Industries</span><i class="ti ti-chevron-down" style="font-size:12px; color:var(--text-muted);"></i></div>
+
+          <div style="background:var(--bg-card2); border:0.5px solid var(--border); border-radius:8px; padding:10px 12px; margin-bottom:14px;">
+            <p style="font-size:9.5px; color:var(--text-muted); margin:0 0 8px;">Itemized invoice INV-10456</p>
+            <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:6px;"><span>Deposit received</span><span>$5,143</span></div>
+            <div style="border-top:0.5px solid var(--border); padding-top:6px; margin-bottom:6px;">
+              <p style="font-size:9px; color:var(--text-muted); margin:0 0 4px;">Applied / used to date</p>
+              <div style="display:flex; justify-content:space-between; font-size:10.5px; color:#c7cedb; margin-bottom:2px;"><span>Mediation session, half-day</span><span>$1,500</span></div>
+              <div style="display:flex; justify-content:space-between; font-size:10.5px; color:#c7cedb; margin-bottom:2px;"><span>Pre-session case review</span><span>$500</span></div>
+              <div style="display:flex; justify-content:space-between; font-size:10.5px; color:#c7cedb;"><span>Hearing room / admin fee</span><span>$1,200</span></div>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:11px; border-top:0.5px solid var(--border); padding-top:6px; margin-bottom:6px;"><span style="color:var(--text-muted);">Total used</span><span>$3,200</span></div>
+            <div style="display:flex; justify-content:space-between; font-size:12.5px; font-weight:500; border-top:0.5px solid var(--border); padding-top:8px;"><span style="color:var(--text-heading);">Remaining available for refund</span><span style="color:var(--green);">$1,943</span></div>
+          </div>
+
+          <p style="font-size:9.5px; color:var(--text-muted); margin:0 0 6px;">Refund amount</p>
+          <input type="text" placeholder="$0.00" style="width:100%; background:var(--bg-card2); border:0.5px solid var(--border); border-radius:6px; padding:7px 10px; font-size:13px; color:var(--text); margin-bottom:4px;" />
+          <p style="font-size:9px; color:var(--text-dim); margin:0 0 14px;">Enter the exact amount to refund &ndash; up to $1,943 available on this invoice.</p>
+
+          <div class="grid grid-2" style="margin-bottom:14px;">
+            <div class="field"><label>Reason</label><div class="value" style="display:flex; justify-content:space-between;">Case settled early <i class="ti ti-chevron-down" style="font-size:11px; color:var(--text-muted);"></i></div></div>
+            <div class="field"><label>Refund method</label><div class="value" style="display:flex; justify-content:space-between;">Bill.com <i class="ti ti-chevron-down" style="font-size:11px; color:var(--text-muted);"></i></div></div>
+          </div>
+
+          <div class="field" style="margin-bottom:16px;"><label>Internal note</label><div class="value" style="min-height:40px; color:var(--text-muted);">Deposit exceeded services rendered; refunding unused balance split between claimant and respondent per agreement.</div></div>
+
+          <div style="display:flex; gap:8px;">
+            <span class="btn btn-red btn-block" onclick="toast('Refund processed for Acme Corp v. Meridian Industries')"><i class="ti ti-receipt-refund" style="font-size:13px;"></i>Process refund</span>
+            <span class="btn btn-outline btn-block" onclick="toast('Opening refund preview...')"><i class="ti ti-eye" style="font-size:13px;"></i>Preview refund</span>
+            <span class="btn btn-outline btn-block" onclick="showBillingTab('invoices')">Cancel</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Invoices -->
+      <div class="billing-tab" id="btab-invoices">
+        <div class="chip-row" style="margin-bottom:10px; align-items:center;">
+          <span style="font-size:10.5px; color:var(--text-muted); margin-right:2px;">Sort by:</span>
+          <span class="chip active">Case <i class="ti ti-chevron-up" style="font-size:10px;"></i></span>
+          <span class="chip">Panelist</span><span class="chip">Invoice date</span><span class="chip">Amount</span><span class="chip">Status</span>
+        </div>
+        <div class="page-header" style="margin-bottom:10px;">
+          <div class="subtitle">6 invoices shown of 38 &middot; Grouped by case &middot; Updated a few seconds ago</div>
+          <div class="toolbar"><div class="search-box"><i class="ti ti-search"></i><span>Search invoices...</span></div><i class="ti ti-adjustments-horizontal icon-btn"></i><i class="ti ti-refresh icon-btn"></i></div>
+        </div>
+        <div class="table-wrap">
+          <table style="min-width:920px;">
+            <thead><tr><th>Invoice #</th><th>Type</th><th>Panelist</th><th style="text-align:right;">Amount</th><th>Status</th><th>Invoice date</th><th>Due date</th><th style="text-align:center;">Details</th></tr></thead>
+            <tbody id="invoicesTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Payments -->
+      <div class="billing-tab" id="btab-payments">
+        <div class="chip-row" style="margin-bottom:10px; align-items:center;">
+          <span style="font-size:10.5px; color:var(--text-muted); margin-right:2px;">Sort by:</span>
+          <span class="chip active">Case <i class="ti ti-chevron-up" style="font-size:10px;"></i></span>
+          <span class="chip">Panelist</span><span class="chip">Payment date</span><span class="chip">Amount</span><span class="chip">Payment type</span>
+        </div>
+        <div class="page-header" style="margin-bottom:10px;">
+          <div class="subtitle">5 payments shown of 27 &middot; Grouped by case &middot; Updated a few seconds ago</div>
+          <div class="toolbar"><div class="search-box"><i class="ti ti-search"></i><span>Search payments...</span></div><i class="ti ti-adjustments-horizontal icon-btn"></i><i class="ti ti-refresh icon-btn"></i></div>
+        </div>
+        <div class="table-wrap">
+          <table style="min-width:1000px;">
+            <thead><tr><th>Payment #</th><th>Service</th><th>Panelist</th><th>Payment to</th><th style="text-align:right;">Amount</th><th>Payment type</th><th>Method</th><th>Date</th><th style="text-align:center;">Details</th></tr></thead>
+            <tbody id="paymentsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PLACEHOLDER VIEWS ============ -->
+    <section id="view-placeholder" class="view">
+      <div class="page-header"><h1 id="placeholderTitle">—</h1></div>
+      <div class="empty-state">
+        <i id="placeholderIcon" class="ti ti-tools"></i>
+        <h2 id="placeholderHeading">Not part of this prototype</h2>
+        <p id="placeholderText"></p>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  // ---------- Data ----------
+  var cases = [
+    {type:'Arbitration', pill:'pill-arbitration', inquiry:'5/20/2025', status:'Post-hearing', lastContact:'6/30/2026', followUp:'7/10/2026', matter:'Acme Corp v. Meridian Industries', stage:'Payment due', stagePill:'pill-orange', next:['Filing fee due 6/30; disclosures sent 7/8','6/30 scheduling order sent to counsel','Awaiting response on hearing logistics'], hearing:'7/24/2026', rev:'$5,143', revDate:'7/31/2026', revStatus:'Estimated', rev2:'$981', rev2Date:'7/31/2026', deposit:'Yes &middot; $2,500', depositPill:'pill-green'},
+    {type:'Mediation', pill:'pill-mediation', inquiry:'4/14/2025', status:'Post-hearing', lastContact:'5/6/2026', followUp:'7/13/2026', matter:'Northstar Energy v. Halden Industries', stage:'On hold', stagePill:'pill-neutral', next:['Hold remaining deposit, trial pushed to November','Northstar has not sent update on case status','Follow-up email sent to counsel checking on status'], hearing:'8/13/2026', rev:'$1,200', revDate:'7/31/2026', revStatus:'Estimated', rev2:'&mdash;', rev2Date:'&mdash;', deposit:'No', depositPill:'pill-neutral'},
+    {type:'Mediation', pill:'pill-mediation', inquiry:'4/16/2026', status:'Case', lastContact:'6/29/2026', followUp:'7/13/2026', matter:'Reyes Family Trust Dispute', stage:'Payment due', stagePill:'pill-orange', next:['Remaining payment due from claimant','Invoice emailed to comptroller 6/29','Hoping payment posts before mediation date'], hearing:'&mdash;', rev:'$15,688', revDate:'7/31/2026', revStatus:'Estimated', rev2:'&mdash;', rev2Date:'&mdash;', deposit:'Yes &middot; $5,000', depositPill:'pill-green'},
+    {type:'Arbitration', pill:'pill-arbitration', inquiry:'7/6/2026', status:'Case', lastContact:'7/6/2026', followUp:'7/13/2026', matter:'Roth v. Legacy Clark, Inc.', stage:'Payment due', stagePill:'pill-orange', next:['Filing fee due 6/30','Disclosures due to parties 7/13','Objection from respondent expected 7/13'], hearing:'&mdash;', rev:'$1,000', revDate:'7/31/2026', revStatus:'Estimated', rev2:'$1,000', rev2Date:'8/31/2026', deposit:'No', depositPill:'pill-neutral'},
+    {type:'Mediation', pill:'pill-mediation', inquiry:'5/5/2026', status:'Post-hearing', lastContact:'6/23/2026', followUp:'6/29/2026', matter:'Folsom Medical Group v. Cerbo LLC', stage:'Continuing', stagePill:'pill-teal', next:['Plaintiff paying 1/3, defendant paying 2/3','Case did not settle at last session',"Payment sent to Folsom for invoice #155"], hearing:'6/23/2026', rev:'$2,000', revDate:'7/31/2026', revStatus:'Estimated', rev2:'&mdash;', rev2Date:'&mdash;', deposit:'Yes &middot; $1,000', depositPill:'pill-green'},
+    {type:'Mock trial', pill:'pill-mock', inquiry:'5/22/2026', status:'Post-hearing', lastContact:'6/29/2026', followUp:'6/29/2026', matter:'Larson &ndash; Chevron mock exercise', stage:'Judge invoice', stagePill:'pill-arbitration', next:['Larson to net $28k in pocket','Emailed judge re mock and also payment','Asked if anything needed before session'], hearing:'6/26/2026', rev:'$12,000', revDate:'7/31/2026', revStatus:'Received full', revStatusColor:'var(--green)', rev2:'&mdash;', rev2Date:'&mdash;', deposit:'Yes &middot; $12,000', depositPill:'pill-green'}
+  ];
+
+  var invoices = [
+    {group:'ACME CORP V. MERIDIAN INDUSTRIES &middot; F26-AD-A-WK-0712', id:'INV-10456', type:'Arbitration', pill:'pill-arbitration', panelist:'Hon. Walter D. Kelley Jr.', amount:'$5,143', status:'Due soon', statusColor:'var(--gold-text)', invDate:'7/1/2026', dueDate:'7/20/2026'},
+    {group:'FOLSOM MEDICAL GROUP V. CERBO LLC', id:'INV-10298', type:'Mediation', pill:'pill-mediation', panelist:'Kenneth Feinberg', amount:'$2,000', status:'Overdue', statusColor:'var(--orange)', invDate:'6/10/2026', dueDate:'6/30/2026'},
+    {group:'LARSON &ndash; CHEVRON MOCK EXERCISE', id:'INV-10429', type:'Mock', pill:'pill-mock', panelist:'Hon. Scott Bales', amount:'$12,000', status:'Paid', statusColor:'var(--green)', invDate:'6/26/2026', dueDate:'7/5/2026'},
+    {group:'NORTHSTAR ENERGY V. HALDEN INDUSTRIES', id:'INV-10438', type:'Mediation', pill:'pill-mediation', panelist:'Hon. Walter D. Kelley Jr.', amount:'$1,200', status:'Sent', statusColor:'var(--gold-text)', invDate:'7/3/2026', dueDate:'7/24/2026'},
+    {group:'REYES FAMILY TRUST DISPUTE', id:'INV-10461', type:'Mediation', pill:'pill-mediation', panelist:'Kenneth Feinberg', amount:'$15,688', status:'Due soon', statusColor:'var(--gold-text)', invDate:'7/1/2026', dueDate:'7/15/2026'},
+    {group:'ROTH V. LEGACY CLARK, INC.', id:'INV-10441', type:'Arbitration', pill:'pill-arbitration', panelist:'Hon. Scott Bales', amount:'$1,000', status:'Paid', statusColor:'var(--green)', invDate:'7/6/2026', dueDate:'7/13/2026'}
+  ];
+
+  var payments = [
+    {group:'ACME CORP V. MERIDIAN INDUSTRIES &middot; F26-AD-A-WK-0712', id:'PMT-3301', service:'Arbitration', pill:'pill-arbitration', panelist:'Hon. Walter D. Kelley Jr.', to:'Panelist', amount:'$2,500', ptype:'Partial', ptypeColor:'var(--gold-text)', method:'Bill.com', date:'7/12/2026'},
+    {group:'FOLSOM MEDICAL GROUP V. CERBO LLC', id:'PMT-3287', service:'Mediation', pill:'pill-mediation', panelist:'Kenneth Feinberg', to:'Panelist', amount:'$2,000', ptype:'Full', ptypeColor:'var(--green)', method:'Wire transfer', date:'6/23/2026'},
+    {group:'LARSON &ndash; CHEVRON MOCK EXERCISE', id:'PMT-3260', service:'Mock', pill:'pill-mock', panelist:'Hon. Scott Bales', to:'Panelist', amount:'$12,000', ptype:'Full', ptypeColor:'var(--green)', method:'Wire transfer', date:'7/6/2026'},
+    {group:'NORTHSTAR ENERGY V. HALDEN INDUSTRIES', id:'PMT-3299', service:'Mediation', pill:'pill-mediation', panelist:'Hon. Walter D. Kelley Jr.', to:'Panelist', amount:'$1,200', ptype:'Remaining', ptypeColor:'var(--blue)', method:'Bill.com', date:'7/10/2026'},
+    {group:'ROTH V. LEGACY CLARK, INC.', id:'PMT-3255', service:'Arbitration', pill:'pill-arbitration', panelist:'Hon. Scott Bales', to:'Claimant counsel', amount:'$1,000', ptype:'Final', ptypeColor:'var(--purple)', method:'Bill.com', date:'7/6/2026'}
+  ];
+
+  function renderCases(){
+    var body = document.getElementById('casesTableBody');
+    body.innerHTML = cases.map(function(c, i){
+      return '<tr class="clickable" onclick="openCase()">' +
+        '<td onclick="event.stopPropagation()"><input type="checkbox" /></td>' +
+        '<td><span class="pill '+c.pill+'">'+c.type+'</span></td>' +
+        '<td style="color:var(--text-muted); white-space:nowrap;">'+c.inquiry+'</td>' +
+        '<td style="white-space:nowrap;">'+c.status+'</td>' +
+        '<td style="color:#c7cedb; white-space:nowrap;">'+c.lastContact+'</td>' +
+        '<td style="color:var(--text-heading); white-space:nowrap;">'+c.followUp+'</td>' +
+        '<td style="color:var(--text-heading);">'+c.matter+'</td>' +
+        '<td><span class="pill '+c.stagePill+'">'+c.stage+'</span></td>' +
+        '<td style="color:var(--text-muted); min-width:220px;">'+c.next.map(function(n){return '<p style="margin:0 0 2px; line-height:1.35;">'+n+'</p>';}).join('')+'</td>' +
+        '<td style="color:#c7cedb; white-space:nowrap;">'+c.hearing+'</td>' +
+        '<td style="text-align:right; white-space:nowrap;">'+c.rev+'</td>' +
+        '<td style="color:var(--text-muted); white-space:nowrap;">'+c.revDate+'</td>' +
+        '<td style="color:'+(c.revStatusColor||'var(--text-muted)')+'; white-space:nowrap;">'+c.revStatus+'</td>' +
+        '<td style="text-align:right; white-space:nowrap; border-left:0.5px solid var(--border);">'+c.rev2+'</td>' +
+        '<td style="color:var(--text-muted); white-space:nowrap;">'+c.rev2Date+'</td>' +
+        '<td style="white-space:nowrap;"><span class="pill '+c.depositPill+'">'+c.deposit+'</span></td>' +
+      '</tr>';
+    }).join('');
+  }
+
+  function renderInvoices(){
+    var body = document.getElementById('invoicesTableBody');
+    var html = '';
+    invoices.forEach(function(inv){
+      html += '<tr class="group-row"><td colspan="8">'+inv.group+'</td></tr>';
+      html += '<tr class="clickable" onclick="showBillingTab(\'invoice\')">' +
+        '<td style="color:var(--text-heading);">'+inv.id+'</td>' +
+        '<td><span class="pill '+inv.pill+'">'+inv.type+'</span></td>' +
+        '<td style="color:#c7cedb;">'+inv.panelist+'</td>' +
+        '<td style="text-align:right; color:var(--text-heading);">'+inv.amount+'</td>' +
+        '<td style="color:'+inv.statusColor+';">'+inv.status+'</td>' +
+        '<td style="color:var(--text-muted);">'+inv.invDate+'</td>' +
+        '<td style="color:var(--text-muted);">'+inv.dueDate+'</td>' +
+        '<td style="text-align:center;" onclick="event.stopPropagation(); toast(\'Viewing '+inv.id+'\')"><i class="ti ti-eye" style="color:var(--blue);"></i></td>' +
+      '</tr>';
+    });
+    body.innerHTML = html;
+  }
+
+  function renderPayments(){
+    var body = document.getElementById('paymentsTableBody');
+    var html = '';
+    payments.forEach(function(p){
+      html += '<tr class="group-row"><td colspan="9">'+p.group+'</td></tr>';
+      html += '<tr class="clickable" onclick="showBillingTab(\'payment\')">' +
+        '<td style="color:var(--text-heading);">'+p.id+'</td>' +
+        '<td><span class="pill '+p.pill+'">'+p.service+'</span></td>' +
+        '<td style="color:#c7cedb;">'+p.panelist+'</td>' +
+        '<td style="color:#c7cedb;">'+p.to+'</td>' +
+        '<td style="text-align:right; color:var(--text-heading);">'+p.amount+'</td>' +
+        '<td style="color:'+p.ptypeColor+';">'+p.ptype+'</td>' +
+        '<td style="color:var(--text-muted);">'+p.method+'</td>' +
+        '<td style="color:var(--text-muted);">'+p.date+'</td>' +
+        '<td style="text-align:center;" onclick="event.stopPropagation(); toast(\'Viewing '+p.id+'\')"><i class="ti ti-eye" style="color:var(--blue);"></i></td>' +
+      '</tr>';
+    });
+    body.innerHTML = html;
+  }
+
+  // ---------- Navigation ----------
+  function setActiveNav(name){
+    document.querySelectorAll('.nav-item').forEach(function(el){
+      el.classList.toggle('active', el.getAttribute('data-nav') === name);
+    });
+  }
+
+  function hideAllViews(){
+    document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('active'); });
+  }
+
+  function showView(name){
+    hideAllViews();
+    document.getElementById('view-'+name).classList.add('active');
+    setActiveNav(name);
+    document.querySelector('.content').scrollTop = 0;
+  }
+
+  function showPlaceholder(name, title, icon, text){
+    hideAllViews();
+    document.getElementById('view-placeholder').classList.add('active');
+    document.getElementById('placeholderTitle').textContent = title;
+    document.getElementById('placeholderHeading').textContent = title;
+    document.getElementById('placeholderIcon').className = 'ti ' + icon;
+    document.getElementById('placeholderText').textContent = text;
+    setActiveNav(name);
+    document.querySelector('.content').scrollTop = 0;
+  }
+
+  function openCase(){
+    showView('newcase');
+    showWizardTab(1);
+  }
+
+  function showWizardTab(n){
+    document.querySelectorAll('.wizard-tab').forEach(function(t){ t.classList.remove('active'); });
+    document.getElementById('wtab-'+n).classList.add('active');
+    document.querySelectorAll('.wizard-pill').forEach(function(p){
+      p.classList.toggle('active', p.getAttribute('data-tab') === String(n));
+    });
+  }
+
+  function showBillingTab(name){
+    showView('billing');
+    document.querySelectorAll('.billing-tab').forEach(function(t){ t.classList.remove('active'); });
+    document.getElementById('btab-'+name).classList.add('active');
+    document.querySelectorAll('.subnav-item').forEach(function(s){
+      s.classList.toggle('active', s.getAttribute('data-btab') === name);
+    });
+  }
+
+  // Chip toggling (invoice type / payment type)
+  document.addEventListener('click', function(e){
+    var chip = e.target.closest('.chip-row .chip');
+    if(chip){
+      var row = chip.parentElement;
+      row.querySelectorAll('.chip').forEach(function(c){ c.classList.remove('active'); });
+      chip.classList.add('active');
+    }
+  });
+
+  // ---------- Toast ----------
+  var toastTimer;
+  function toast(msg){
+    var el = document.getElementById('toast');
+    document.getElementById('toastMsg').textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ el.classList.remove('show'); }, 2600);
+  }
+
+  // ---------- Init ----------
+  renderCases();
+  renderInvoices();
+  renderPayments();
+  showView('dashboard');
+  showWizardTab(1);
+  showBillingTab('invoice');
+  showView('dashboard'); // ensure dashboard wins after tab init side-effects
+</script>
+
+</body>
+</html>
